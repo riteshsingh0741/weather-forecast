@@ -1,0 +1,722 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --accent: #00b4d8;
+    --mute: #9fb8c1;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --overview-bg: rgba(255, 255, 255, 0.05);
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    color: #fff;
+    background: #0909;
+}
+
+/* ---------------- Background ---------------- */
+.bg {
+    position: fixed;
+    inset: 0;
+    background: url("background.gif") center/cover no-repeat;
+    filter: brightness(0.45);
+    z-index: 0;
+}
+
+/* ---------------- Loader ---------------- */
+.loader-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+}
+.loader-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------------- App Layout ---------------- */
+.app {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ---------------- Hero (before search) ---------------- */
+.hero {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+.hero.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+.hero-title {
+    text-align: center;
+}
+.hero-title h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+}
+.hero-title p {
+    color: rgba(255,255,255,0.6);
+    margin-top: 6px;
+    font-size: 1rem;
+}
+.hero-search {
+    display: flex;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 14px 20px;
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.hero-search input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 1rem;
+    width: 260px;
+    font-family: "Poppins", sans-serif;
+}
+.hero-search input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+.hero-search button {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: #000;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+.hero-search button:hover {
+    transform: scale(1.08);
+    background: rgba(255, 255, 255, 0.4);
+}
+.hero-search button:active {
+    transform: scale(0.96);
+}
+
+/* ---------------- Topbar (after search) ---------------- */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+.topbar.show {
+    opacity: 1;
+    visibility: visible;
+}
+.brand h1 {
+    font-size: 1.6rem;
+}
+.brand .muted {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+}
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ---------------- Unit Toggle ---------------- */
+.unit-toggle {
+    display: flex;
+}
+.unit-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 14px;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.unit-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ---------------- Search Bar (topbar) ---------------- */
+.search {
+    display: flex;
+    gap: 8px;
+}
+.search input {
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: border 0.3s;
+    font-family: "Poppins", sans-serif;
+}
+.search input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+.search input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+.search button {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: #000;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+.search button:hover {
+    transform: scale(1.08);
+    background: rgba(255, 255, 255, 0.4);
+}
+.search button:active {
+    transform: scale(0.96);
+}
+
+/* ---------------- Geolocation Button ---------------- */
+.geo-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, transform 0.2s;
+}
+.geo-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* ---------------- Floating History Button ---------------- */
+.history-fab {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 50;
+}
+.history-fab-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 12px 20px;
+    border-radius: 30px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    transition: background 0.2s, transform 0.2s;
+}
+.history-fab-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+.history-dropdown {
+    display: none;
+    position: absolute;
+    bottom: 54px;
+    right: 0;
+    background: rgba(20, 20, 40, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 14px;
+    min-width: 200px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.history-dropdown.open {
+    display: block;
+    animation: fadeIn 0.2s ease;
+}
+.history-dropdown-title {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.history-chips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.history-chips-list .chip {
+    width: 100%;
+    text-align: left;
+    border-radius: 10px;
+}
+
+.chip {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.85rem;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.chip:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+.chip-remove {
+    padding: 6px 10px;
+    background: rgba(255, 80, 80, 0.3);
+    border-color: rgba(255, 80, 80, 0.5);
+}
+.chip-remove:hover {
+    background: rgba(255, 80, 80, 0.5);
+}
+
+/* ---------------- Main Weather Card ---------------- */
+.main-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+}
+.fade-in {
+    animation: fadeIn 0.6s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------- Overview Section ---------------- */
+.overview {
+    background: var(--overview-bg);
+    padding: 20px;
+    border-radius: 12px;
+}
+.overview-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+.overview-actions {
+    display: flex;
+    gap: 8px;
+}
+.icon-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 50%;
+    color: var(--accent);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+.overview h2 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+}
+.temp-row {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+.temp-icon-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.weather-emoji {
+    font-size: 3rem;
+}
+.temp {
+    font-size: 3.8rem;
+    font-weight: 700;
+}
+.temp-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.condition {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+.feels, .rain-prob, .sun-times {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.9rem;
+}
+.minmax {
+    color: var(--mute);
+}
+.hourly-list {
+    display: flex;
+    overflow: auto;
+    gap: 10px;
+    margin-top: 10px;
+}
+.hourly-item {
+    background: var(--card-bg);
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 80px;
+}
+
+/* ---------------- 5-Day Forecast ---------------- */
+.daily-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+.daily-item {
+    display: grid;
+    grid-template-columns: 60px 40px 1fr 120px;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+.daily-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+.daily-day {
+    font-weight: 600;
+}
+.daily-emoji {
+    font-size: 1.5rem;
+}
+.daily-label {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.7);
+}
+.daily-temps {
+    text-align: right;
+    font-size: 0.95rem;
+}
+
+/* ---------------- Metrics Grid ---------------- */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+.card {
+    background: var(--card-bg);
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    transition: 0.3s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* ---------------- Metric Components ---------------- */
+.m-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+.m-head i {
+    color: var(--accent);
+    transition: color 0.3s;
+}
+.m-desc {
+    color: var(--mute);
+    font-size: 0.9rem;
+}
+.m-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-top: 6px;
+}
+.m-note {
+    color: var(--mute);
+    font-size: 0.9rem;
+    margin-top: 6px;
+}
+
+/* ---------------- Progress Bars ---------------- */
+.progress,
+.uv-bar,
+.aqi-bar {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+.fill,
+.uv-fill,
+.aqi-fill {
+    height: 100%;
+    width: 0%;
+    transition: 0.8s;
+}
+.fill {
+    background: linear-gradient(90deg, var(--accent), #56d3ff);
+}
+.uv-fill {
+    background: linear-gradient(90deg, #2be28a, #ffd24d, #ff8a3d, #ff5b3b);
+}
+.aqi-fill {
+    background: linear-gradient(90deg, #2be28a, #ffd24d, #ff8a3d, #ff5b3b, #a05dff);
+}
+
+/* ---------------- Gauges & Dials ---------------- */
+.gsvg {
+    width: 120px;
+    height: 60px;
+}
+#gFill {
+    stroke-dasharray: 0 314;
+    transition: stroke-dasharray 0.8s ease;
+}
+.wind-dial {
+    width: 120px;
+    height: 120px;
+}
+.dial-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------------- Smart Summary ---------------- */
+.smart-summary {
+    font-size: 1rem;
+    margin: 10px 0 6px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.9);
+}
+.smart-item {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.7);
+    margin-top: 6px;
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+}
+
+/* ---------------- City Clock ---------------- */
+.city-time {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 8px;
+    letter-spacing: 2px;
+}
+.city-date {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.7);
+    margin-top: 4px;
+}
+
+/* ---------------- Alert Card ---------------- */
+.alert-card {
+    border: 1px solid rgba(255, 80, 80, 0.5) !important;
+    background: rgba(255, 50, 50, 0.1) !important;
+}
+.alert-msg {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #ff9999;
+    line-height: 1.6;
+}
+
+/* ---------------- Charts ---------------- */
+canvas {
+    width: 100% !important;
+    margin-top: 12px;
+}
+
+/* ---------------- Light theme smart items ---------------- */
+body.light .smart-summary { color: #111; }
+body.light .smart-item { background: rgba(0,0,0,0.05); color: #333; }
+body.light .city-time { color: #111; }
+body.light .city-date { color: #444; }
+
+/* ---------------- Footer ---------------- */
+.footer {
+    color: var(--mute);
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* ---------------- Error ---------------- */
+.error {
+    color: #ff9999;
+    margin-top: 6px;
+}
+
+.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ---------------- Light Theme ---------------- */
+body.light {
+    color: #111;
+}
+body.light .bg {
+    filter: brightness(0.85);
+}
+body.light .card {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    color: #111;
+}
+body.light .main-card {
+    background: rgba(255,255,255,0.4);
+    box-shadow: 0 0 40px rgba(0,0,0,0.2);
+}
+body.light .overview {
+    background: rgba(255,255,255,0.55);
+}
+body.light .hourly-item {
+    background: rgba(255,255,255,0.55);
+    color: #111;
+}
+body.light .daily-item {
+    background: rgba(255,255,255,0.55);
+    color: #111;
+}
+body.light .m-desc, body.light .m-note, body.light .minmax,
+body.light .feels, body.light .rain-prob, body.light .sun-times {
+    color: #444;
+}
+body.light .brand h1, body.light .brand .muted {
+    color: #111;
+}
+body.light .hero-title h1 { color: #fff; }
+body.light .search input, body.light .hero-search input { color: #111; }
+
+
+body.night {
+    background: #020818;
+}
+body.night .card {
+    background: rgba(10, 20, 60, 0.55);
+    box-shadow: 0 6px 20px rgba(0, 0, 50, 0.7);
+    border: 1px solid rgba(100, 140, 255, 0.1);
+}
+body.night .main-card {
+    background: rgba(5, 10, 40, 0.4);
+    box-shadow: 0 0 40px rgba(0, 0, 80, 0.7);
+}
+body.night .overview {
+    background: rgba(10, 20, 60, 0.5);
+}
+body.night .hourly-item {
+    background: rgba(10, 20, 60, 0.5);
+}
+body.night .daily-item {
+    background: rgba(10, 20, 60, 0.5);
+}
+body.night :root,
+body.night {
+    --accent: #7eb8ff;
+}
+body.night .m-head i {
+    color: #7eb8ff;
+}
+body.night .fill {
+    background: linear-gradient(90deg, #7eb8ff, #a78bfa);
+}
+body.night .hero-search {
+    background: rgba(10, 20, 60, 0.45);
+    border-color: rgba(100, 140, 255, 0.25);
+}

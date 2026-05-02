@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Weather & Air Quality Dashboard by Ritesh Kumar Singh" />
+    <meta name="theme-color" content="#00b4d8" />
+    <title>Weather & Air Quality Dashboard</title>
+
+    <link rel="manifest" href="/manifest.json" type="application/manifest+json" />
+    <link rel="icon" type="image/png" href="icon-192.png" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a2d9d6da3f.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+<div class="bg"></div>
+
+<!-- Loader -->
+<div class="loader-overlay" id="loaderOverlay">
+    <div class="spinner"></div>
+    <p>Fetching weather...</p>
+</div>
+
+<!-- Floating History Button -->
+<div class="history-fab" id="historyFab">
+    <button class="history-fab-btn" id="historyToggle"><i class="fas fa-history"></i> History</button>
+    <div class="history-dropdown" id="historyDropdown">
+        <div class="history-dropdown-title">Recent Searches</div>
+        <div id="historyChips" class="history-chips-list"></div>
+    </div>
+</div>
+
+<!-- Hero: shown before first search -->
+<div class="hero" id="hero">
+    <div class="hero-title">
+        <h1>Weather Forecasting System</h1>
+        <p>Search city — weather + air quality metrics</p>
+    </div>
+    <div class="hero-search">
+        <button class="geo-btn" id="geoBtn"><i class="fas fa-location-arrow"></i> Locate Me</button>
+        <input id="heroInput" placeholder="Enter city (e.g. Delhi)" />
+        <button id="heroBtn">Search</button>
+    </div>
+    <button id="heroThemeToggle" class="unit-btn" style="margin-top:10px">🌙 Dark</button>
+</div>
+
+<main class="app">
+
+    <header class="topbar">
+        <div class="brand">
+            <h1>Weather Forecasting System</h1>
+            <p class="muted">Search city — weather + air quality metrics</p>
+        </div>
+
+        <div class="topbar-right">
+            <!-- Unit toggle -->
+            <div class="unit-toggle">
+                <button id="unitBtn" class="unit-btn">°C / °F</button>
+            </div>
+            <button id="themeToggle" class="unit-btn">🌙 Dark</button>
+            <div class="search">
+                <button class="geo-btn" id="geoBtnTop"><i class="fas fa-location-arrow"></i> Locate Me</button>
+                <input id="cityInput" placeholder="Enter city (e.g. Delhi)" />
+                <button id="searchBtn">🔍</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search history chips (topbar) removed, now in floating button -->
+
+    <section id="mainCard" class="main-card hidden">
+
+        <!-- Weather overview -->
+        <div class="overview card">
+
+            <div class="overview-head">
+                <div>
+                    <h2 id="cityName">City</h2>
+                    <div id="minmax" class="minmax">↑ --° / ↓ --°</div>
+                </div>
+                <div class="overview-actions">
+                    <button class="icon-btn" id="favBtn" title="Add to favourites"><i class="fas fa-star"></i></button>
+                    <button class="icon-btn" id="shareBtn" title="Share"><i class="fas fa-share-alt"></i></button>
+                </div>
+            </div>
+
+            <div class="temp-row">
+                <div class="temp-icon-wrap">
+                    <span id="weatherEmoji" class="weather-emoji"></span>
+                    <div id="temp" class="temp">--°</div>
+                </div>
+
+                <div class="temp-meta">
+                    <div id="condition" class="condition">—</div>
+                    <div id="feels" class="feels">Feels like —</div>
+                    <div id="rainProb" class="rain-prob"></div>
+                    <div id="sunTimes" class="sun-times"></div>
+                </div>
+            </div>
+
+            <div class="hourly-wrap">
+                <h3>Hourly Forecast</h3>
+                <div id="hourlyList" class="hourly-list"></div>
+            </div>
+
+        </div>
+
+        <!-- Smart Summary -->
+        <div class="card" id="smartCard">
+            <div class="m-head"><i class="fas fa-brain"></i><div>Smart Summary</div></div>
+            <div id="smartSummary" class="smart-summary"></div>
+            <div id="outfitSuggestion" class="smart-item"></div>
+            <div id="activitySuggestion" class="smart-item"></div>
+        </div>
+
+        <!-- Live Clock & City Time -->
+        <div class="card">
+            <div class="m-head"><i class="fas fa-clock"></i><div>City Time</div></div>
+            <div id="cityTime" class="city-time"></div>
+            <div id="cityDate" class="city-date"></div>
+            <div id="cityTimezone" class="m-desc"></div>
+        </div>
+
+        <!-- Temperature Trend Chart -->
+        <div class="card">
+            <div class="m-head"><i class="fas fa-chart-line"></i><div>24h Temperature Trend</div></div>
+            <canvas id="tempChart" height="100"></canvas>
+        </div>
+
+        <!-- Rain Probability Chart -->
+        <div class="card">
+            <div class="m-head"><i class="fas fa-cloud-rain"></i><div>Weekly Rain Probability</div></div>
+            <canvas id="rainChart" height="100"></canvas>
+        </div>
+
+        <!-- Weather Alert -->
+        <div class="card alert-card" id="alertCard" style="display:none">
+            <div class="m-head"><i class="fas fa-exclamation-triangle"></i><div>Weather Alert</div></div>
+            <div id="alertMsg" class="alert-msg"></div>
+        </div>
+
+        <!-- 5-Day Forecast -->
+        <div class="card">
+            <div class="m-head"><i class="fas fa-calendar-alt"></i><div>5-Day Forecast</div></div>
+            <div id="dailyList" class="daily-list"></div>
+        </div>
+
+        <!-- Favourite Cities -->
+        <div class="card" id="favCard" style="display:none">
+            <div class="m-head"><i class="fas fa-star"></i><div>Favourite Cities</div></div>
+            <div id="favList" class="history-chips" style="margin-top:10px"></div>
+        </div>
+
+        <!-- Metrics -->
+        <div class="metrics-grid">
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-sun"></i>
+                    <div>UV Index</div>
+                </div>
+                <div class="m-desc">Current intensity</div>
+                <div class="m-value" id="uvIndexLarge"></div>
+                <div class="uv-bar">
+                    <div id="uvBarFill" class="uv-fill"></div>
+                </div>
+                <div class="m-note" id="uvNote"></div>
+            </div>
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-tint"></i>
+                    <div>Humidity</div>
+                </div>
+                <div class="m-desc">Relative humidity</div>
+                <div class="m-value" id="humidityLarge"></div>
+                <div class="progress">
+                    <div id="humidityFill" class="fill"></div>
+                </div>
+                <div class="m-note" id="humNote"></div>
+            </div>
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-compass"></i>
+                    <div>Wind</div>
+                </div>
+                <div class="m-desc" id="windDesc"></div>
+                <div class="dial-box">
+                    <svg class="wind-dial" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="55" stroke="rgba(255,255,255,0.08)" stroke-width="5" fill="none"/>
+                        <line id="windNeedle" x1="60" y1="60" x2="60" y2="10" stroke="#00b4d8" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                    <div class="m-value" id="windVal"></div>
+                </div>
+            </div>
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-water"></i>
+                    <div>Dew Point</div>
+                </div>
+                <div class="m-desc">Comfort indicator</div>
+                <div class="m-value" id="dewPointLarge"></div>
+                <div class="m-note" id="dewNote"></div>
+            </div>
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <div>Pressure</div>
+                </div>
+                <div class="m-desc">Mean sea level</div>
+                <div class="gauge-wrap">
+                    <svg viewBox="0 0 120 60" class="gsvg">
+                        <path d="M0 50 A50 50 0 0 1 110 50" stroke="rgba(255,255,255,0.1)" stroke-width="6" fill="none"/>
+                        <path id="gFill" d="M0 50 A50 50 0 0 1 110 50" stroke="url(#gradPressure)" stroke-width="6" fill="none" stroke-dasharray="0 314" stroke-linecap="round"/>
+                        <defs>
+                            <linearGradient id="gradPressure" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stop-color="#2be28a"/>
+                                <stop offset="50%" stop-color="#ffd24d"/>
+                                <stop offset="100%" stop-color="#ff5b3b"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="m-value" id="pressureLarge"></div>
+                </div>
+            </div>
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-eye"></i>
+                    <div>Visibility</div>
+                </div>
+                <div class="m-desc">Horizontal (km)</div>
+                <div class="m-value" id="visLarge"></div>
+                <div class="progress">
+                    <div id="visFill" class="fill"></div>
+                </div>
+                <div class="m-note" id="visNote"></div>
+            </div>
+
+            <div class="metric card">
+                <div class="m-head">
+                    <i class="fas fa-smog"></i>
+                    <div>Air Quality</div>
+                </div>
+                <div class="m-desc">Overall AQI</div>
+                <div class="m-value" id="aqiValue"></div>
+                <div class="aqi-bar">
+                    <div id="aqiFill" class="aqi-fill"></div>
+                </div>
+                <div class="m-note" id="aqiNote"></div>
+            </div>
+
+        </div>
+
+    </section>
+
+    <div id="error" class="error"></div>
+
+    <footer class="footer">
+        <small>&copy; 2026 Ritesh Kumar Singh. All rights reserved.</small>
+    </footer>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
